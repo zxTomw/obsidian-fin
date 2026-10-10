@@ -1,0 +1,8 @@
+/bin/
+/dist/
+*.db
+*.db-*
+*.sqlite*
+.DS_Store
+/config.toml
+/coverage.out

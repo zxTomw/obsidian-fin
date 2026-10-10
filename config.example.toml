@@ -1,0 +1,8 @@
+# Non-secret configuration only. Copy to ~/Library/Application Support/obsidian-fin/config.toml.
+client_id = "YOUR_PLAID_CLIENT_ID"
+environment = "sandbox"
+country = "CA"
+history_days = 90
+# Use absolute paths; ~ is not expanded.
+# data_dir = "/Users/you/Library/Application Support/obsidian-fin"
+# vault = "/Users/you/Documents/ObsidianVault"
