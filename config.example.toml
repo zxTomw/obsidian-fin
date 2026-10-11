@@ -1,4 +1,4 @@
-# Non-secret configuration only. Copy to ~/Library/Application Support/obsidian-fin/config.toml.
+# Non-secret configuration only. Copy to ~/.config/obsidian-fin/config.toml.
 client_id = "YOUR_PLAID_CLIENT_ID"
 environment = "sandbox"
 country = "CA"

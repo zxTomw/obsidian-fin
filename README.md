@@ -21,11 +21,11 @@ Linux can run the offline suite, but actual connections require macOS with cgo. 
 
 ## Configure
 
-Create a private state root and copy the example configuration:
+Create a private configuration directory and copy the example configuration:
 
 ```sh
-install -d -m 700 "$HOME/Library/Application Support/obsidian-fin"
-install -m 600 config.example.toml "$HOME/Library/Application Support/obsidian-fin/config.toml"
+install -d -m 700 "$HOME/.config/obsidian-fin"
+install -m 600 config.example.toml "$HOME/.config/obsidian-fin/config.toml"
 ```
 
 Edit that file with your **Plaid client ID** and, optionally, your vault path:
@@ -42,11 +42,15 @@ The only accepted keys are `client_id`, `environment`, `country`, `history_days`
 
 Precedence is explicit flags → TOML → defaults. Global flags are `--config`, `--data-dir`, and `--environment sandbox|production`. `export obsidian` accepts `--vault`. There is no environment-variable credential configuration and no secret argument. The first interactive `connect` prompts for a missing Plaid client secret with terminal echo disabled and stores it in Keychain. It never asks for your bank password or MFA code; those belong exclusively in the Plaid/BMO browser flow.
 
-Default state:
+The default configuration file is `~/.config/obsidian-fin/config.toml`. Use `--config` to select a different file. SQLite and connection state remain in Application Support; `data_dir` or `--data-dir` changes their location independently. The state directory is created when a command needs it.
+
+Default layout:
 
 ```text
-~/Library/Application Support/obsidian-fin/
+~/.config/obsidian-fin/
   config.toml
+
+~/Library/Application Support/obsidian-fin/
   .process.lock
   sandbox/
     obsidian-fin.db
@@ -57,7 +61,7 @@ Default state:
     client-user-id
 ```
 
-Keep the state root outside the vault. obsidian-fin rejects a state directory within the resolved vault. New state directories are `0700`; database, lock and temporary files are `0600`. Keep your manually created configuration `0600` too.
+Keep the state root outside the vault. obsidian-fin rejects a state directory within the resolved vault. New state directories are `0700`; database, lock and temporary files are `0600`. Keep the configuration directory `0700` and its file `0600` too. An existing configuration elsewhere can be selected with `--config` or moved to the new default path; it is not automatically relocated.
 
 ## Connect, sync and export
 

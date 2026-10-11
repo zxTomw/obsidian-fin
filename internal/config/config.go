@@ -31,16 +31,31 @@ func DefaultRoot() (string, error) {
 	return filepath.Join(home, "Library", "Application Support", "obsidian-fin"), nil
 }
 
+func DefaultConfigPath() (string, error) {
+	userHome, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(userHome, ".config", "obsidian-fin", "config.toml"), nil
+}
+
 func Load(flags Flags) (Config, error) {
 	root, err := DefaultRoot()
 	if err != nil {
 		return Config{}, errs.Wrap(2, "cannot determine the default state directory", err)
 	}
-	c := Config{Environment: "sandbox", Country: "CA", HistoryDays: 90, DataDir: root}
 	path := flags.Config
 	if path == "" {
-		path = filepath.Join(root, "config.toml")
+		path, err = DefaultConfigPath()
+		if err != nil {
+			return Config{}, errs.Wrap(2, "cannot determine the default configuration path", err)
+		}
 	}
+	return loadFile(flags, root, path)
+}
+
+func loadFile(flags Flags, root, path string) (Config, error) {
+	c := Config{Environment: "sandbox", Country: "CA", HistoryDays: 90, DataDir: root}
 	content, err := os.ReadFile(path)
 	if err != nil && (!errors.Is(err, os.ErrNotExist) || flags.Config != "") {
 		return c, errs.Wrap(2, "cannot read configuration", err)

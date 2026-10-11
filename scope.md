@@ -123,7 +123,7 @@ obsidian-fin export obsidian --vault "/absolute/path/to/Vault"
 
 These are the V1 commands; `sync` does not implicitly export. Support global `--config`, `--data-dir`, and `--environment sandbox|production`, plus `--help` and `--version`. Vault may be configured instead of passed each time. Use precedence: explicit flags → TOML configuration → defaults. Never accept secrets in command-line arguments or TOML.
 
-Default configuration/state root: `~/Library/Application Support/obsidian-fin/`; partition SQLite/state by environment. Keep it outside the vault. Configuration contains only client ID, environment, country, requested history days, and paths. First `connect` obtains any missing Plaid client secret through a hidden terminal prompt and stores it in Keychain; automated tests inject an in-memory secret store. Production must be explicitly selected. Reject environment/token mismatches.
+Default configuration file: `~/.config/obsidian-fin/config.toml`. Default state root: `~/Library/Application Support/obsidian-fin/`; partition SQLite/state by environment. Keep state outside the vault. Configuration contains only client ID, environment, country, requested history days, and paths. First `connect` obtains any missing Plaid client secret through a hidden terminal prompt and stores it in Keychain; automated tests inject an in-memory secret store. Production must be explicitly selected. Reject environment/token mismatches.
 
 Print concise counts and outcomes to stdout; errors/progress go to stderr. Sync reports added/modified/removed counts and completion; export reports created/updated/unchanged/conflicted counts. Never print transaction details or tokens in routine output.
 

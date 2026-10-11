@@ -23,7 +23,14 @@ func ReadSecret(ctx context.Context, output io.Writer) (value string, err error)
 		return "", errs.New(1, "a local terminal is required to enter the missing Plaid secret; run connect interactively")
 	}
 	defer tty.Close()
+	return readSecret(ctx, output, tty)
+}
+
+func readSecret(ctx context.Context, output io.Writer, tty *os.File) (value string, err error) {
 	fd := int(tty.Fd())
+	if fd < 0 || fd >= unix.FD_SETSIZE {
+		return "", errs.New(1, "terminal descriptor exceeds the supported range")
+	}
 	old, err := term.MakeRaw(fd)
 	if err != nil {
 		return "", errs.New(1, "could not enable the hidden terminal prompt")
@@ -43,18 +50,19 @@ func ReadSecret(ctx context.Context, output io.Writer) (value string, err error)
 		if err := ctx.Err(); err != nil {
 			return "", err
 		}
-		fds := []unix.PollFd{{Fd: int32(fd), Events: unix.POLLIN}}
-		_, err := unix.Poll(fds, 100)
+		// Darwin poll(2) does not support /dev/tty and can report POLLNVAL
+		// for an open descriptor. select(2) supports this terminal device.
+		var read unix.FdSet
+		read.Set(fd)
+		timeout := unix.Timeval{Usec: 100000}
+		ready, err := unix.Select(fd+1, &read, nil, nil, &timeout)
 		if errors.Is(err, unix.EINTR) {
 			continue
 		}
 		if err != nil {
 			return "", errs.New(1, "terminal input failed")
 		}
-		if fds[0].Revents&(unix.POLLERR|unix.POLLHUP|unix.POLLNVAL) != 0 {
-			return "", errs.New(1, "terminal input closed")
-		}
-		if fds[0].Revents&unix.POLLIN == 0 {
+		if ready == 0 || !read.IsSet(fd) {
 			continue
 		}
 		var b [1]byte
